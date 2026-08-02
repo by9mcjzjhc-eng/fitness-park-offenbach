@@ -52,7 +52,8 @@ trap 'rm -f "$BATCH"' EXIT
 } > "$BATCH"
 
 echo "→ Verbinde mit $HOST — bitte SFTP-Passwort eingeben:"
-sftp -P 22 -b "$BATCH" "$USER@$HOST"
+# BatchMode=no ist nötig: -b schaltet sonst die Passwortabfrage ab
+sftp -o BatchMode=no -P 22 -b "$BATCH" "$USER@$HOST"
 
 echo
 echo "→ Prüfe die Website …"
