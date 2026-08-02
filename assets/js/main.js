@@ -430,6 +430,7 @@
 
     function setError(input, msg) {
       var field = input.closest('.field');
+      if (!field) return true;   // versteckte Felder haben keinen Container
       var err = form.querySelector('[data-err-for="' + input.id + '"]');
       field.classList.toggle('is-invalid', Boolean(msg));
       input.setAttribute('aria-invalid', msg ? 'true' : 'false');
@@ -458,67 +459,84 @@
       return setError(input, '');
     }
 
-    var fields = form.querySelectorAll('input, textarea, select');
+    // Versteckte Felder und den Honeypot nicht validieren
+    var fields = Array.prototype.filter.call(
+      form.querySelectorAll('input, textarea, select'),
+      function (el) { return el.type !== 'hidden' && el.name !== 'website'; }
+    );
 
     fields.forEach(function (input) {
       // Erst beim Verlassen prüfen, nicht bei jedem Tastenanschlag
       input.addEventListener('blur', function () { validate(input); });
       input.addEventListener('input', function () {
-        if (input.closest('.field').classList.contains('is-invalid')) validate(input);
+        var f = input.closest('.field');
+        if (f && f.classList.contains('is-invalid')) validate(input);
       });
     });
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+    // Zeitstempel für die Spam-Zeitfalle in kontakt.php
+    var loaded = document.getElementById('f-loaded');
+    if (loaded) loaded.value = String(Math.floor(Date.now() / 1000));
 
+    var submitBtn = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', function (e) {
       var firstBad = null;
       fields.forEach(function (input) {
         if (!validate(input) && !firstBad) firstBad = input;
       });
 
       if (firstBad) {
+        e.preventDefault();
         status.textContent = 'Bitte prüfe die markierten Felder.';
         status.className = 'form__status is-err';
         firstBad.focus();
         return;
       }
 
-      /* -----------------------------------------------------------------
-         Übergangslösung: die Anfrage wird als vorbereitete E-Mail im
-         Mailprogramm des Besuchers geöffnet. Das funktioniert ohne Server,
-         hat aber Nachteile — auf Geräten ohne eingerichtetes Mailprogramm
-         passiert nichts, und die Anfrage landet nicht automatisch bei euch.
+      // Ohne fetch: das Formular wird ganz normal abgeschickt, kontakt.php
+      // liefert dann eine eigene Bestätigungsseite aus.
+      if (!window.fetch) return;
 
-         Besser wäre ein echter Endpunkt. Dann diesen Block ersetzen durch:
-           a) Formspree / FormSubmit: <form action="https://..." method="POST">
-              und den preventDefault-Aufruf oben entfernen.
-           b) Eigenes PHP-Skript auf dem Webspace, per fetch() angesprochen.
-         ----------------------------------------------------------------- */
-      var val = function (id) {
-        var el = document.getElementById(id);
-        return el ? (el.value || '').trim() : '';
-      };
-      var goalEl = document.getElementById('f-goal');
-      var goalText = goalEl ? goalEl.options[goalEl.selectedIndex].text : '';
+      e.preventDefault();
 
-      var body = [
-        'Name: ' + val('f-name'),
-        'E-Mail: ' + val('f-mail'),
-        'Telefon: ' + (val('f-tel') || '—'),
-        'Thema: ' + goalText,
-        '',
-        'Nachricht:',
-        val('f-msg') || '—',
-        '',
-        '— gesendet über das Kontaktformular von fitness-park-offenbach.com'
-      ].join('\r\n');
+      // Absenden per fetch an kontakt.php — ohne Seitenwechsel
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.dataset.label = submitBtn.textContent;
+        submitBtn.textContent = 'Wird gesendet …';
+      }
+      status.textContent = '';
+      status.className = 'form__status';
 
-      window.location.href = 'mailto:info@fitness-park-offenbach.com' +
-        '?subject=' + encodeURIComponent('Probetraining-Anfrage — ' + val('f-name')) +
-        '&body=' + encodeURIComponent(body);
-
-      status.textContent = 'Dein E-Mail-Programm öffnet sich mit der fertigen Anfrage — bitte dort noch auf Senden klicken. Klappt das nicht, schreib direkt an info@fitness-park-offenbach.com.';
-      status.className = 'form__status is-ok';
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'fetch' }
+      })
+        .then(function (res) { return res.json().catch(function () { return null; }); })
+        .then(function (data) {
+          if (data && data.ok) {
+            status.textContent = data.message;
+            status.className = 'form__status is-ok';
+            form.reset();
+            if (loaded) loaded.value = String(Math.floor(Date.now() / 1000));
+          } else {
+            status.textContent = (data && data.message) ||
+              'Das hat leider nicht geklappt. Bitte schreib uns an info@fitness-park-offenbach.com oder ruf an: 069 818424.';
+            status.className = 'form__status is-err';
+          }
+        })
+        .catch(function () {
+          status.textContent = 'Keine Verbindung zum Server. Bitte schreib uns an info@fitness-park-offenbach.com oder ruf an: 069 818424.';
+          status.className = 'form__status is-err';
+        })
+        .then(function () {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = submitBtn.dataset.label || 'Anfrage senden';
+          }
+        });
     });
   }
 

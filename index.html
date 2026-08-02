@@ -724,7 +724,15 @@
         </div>
       </div>
 
-      <form class="contact__form reveal" style="--d:.08s" id="contactForm" novalidate>
+      <form class="contact__form reveal" style="--d:.08s" id="contactForm"
+            action="kontakt.php" method="post" novalidate>
+
+        <!-- Spamschutz: für Menschen unsichtbar, Bots füllen es aus -->
+        <div class="honeypot" aria-hidden="true">
+          <label for="f-website">Website</label>
+          <input type="text" id="f-website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+        <input type="hidden" name="loaded" id="f-loaded" value="">
         <h3 class="form__title">Probetraining anfragen</h3>
 
         <div class="field">

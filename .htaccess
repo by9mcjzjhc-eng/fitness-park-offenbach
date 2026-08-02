@@ -1,0 +1,90 @@
+# ============================================================
+# Fitness Park Offenbach — Apache-Konfiguration
+# Getestet für IONOS-Webspace, funktioniert auf jedem Apache
+# ============================================================
+
+# ------------------------------------------------------------
+# HTTPS erzwingen und www vereinheitlichen
+# ------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # http → https
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  # www entfernen. Wer lieber MIT www fahren will, ersetzt diesen
+  # Block durch die auskommentierte Variante darunter.
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
+  # Variante MIT www:
+  # RewriteCond %{HTTP_HOST} !^www\. [NC]
+  # RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  # .html in der Adresse weglassen: /impressum statt /impressum.html
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteCond %{REQUEST_URI} !/$
+  RewriteRule ^(.+)$ $1.html [L]
+</IfModule>
+
+# ------------------------------------------------------------
+# Startseite
+# ------------------------------------------------------------
+DirectoryIndex index.html
+
+# ------------------------------------------------------------
+# Zeichensatz
+# ------------------------------------------------------------
+AddDefaultCharset UTF-8
+
+# ------------------------------------------------------------
+# Komprimierung — spart bei CSS und JS rund 70 Prozent
+# ------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ------------------------------------------------------------
+# Browser-Caching
+# ------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # Bilder und Schriften ändern sich selten
+  ExpiresByType image/png                 "access plus 1 year"
+  ExpiresByType image/jpeg                "access plus 1 year"
+  ExpiresByType image/webp                "access plus 1 year"
+  ExpiresByType image/svg+xml             "access plus 1 year"
+  ExpiresByType font/woff2                "access plus 1 year"
+
+  # CSS und JS kürzer, damit Änderungen zügig ankommen
+  ExpiresByType text/css                  "access plus 1 week"
+  ExpiresByType application/javascript    "access plus 1 week"
+
+  # HTML nie lange zwischenspeichern
+  ExpiresByType text/html                 "access plus 0 seconds"
+</IfModule>
+
+# ------------------------------------------------------------
+# Sicherheits-Kopfzeilen
+# ------------------------------------------------------------
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# ------------------------------------------------------------
+# Verzeichnisauflistung abschalten
+# ------------------------------------------------------------
+Options -Indexes
+
+# ------------------------------------------------------------
+# Fehlerseiten
+# ------------------------------------------------------------
+ErrorDocument 404 /404.html

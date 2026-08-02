@@ -890,6 +890,13 @@ body::after{
 .field--check label a{ color:var(--red-txt); }
 .field--check .field__err{ grid-column:1 / -1; }
 
+/* Spamschutz-Feld: unsichtbar, aber nicht display:none — Bots prüfen darauf */
+.honeypot{
+  position:absolute; left:-9999px; width:1px; height:1px;
+  overflow:hidden; opacity:0;
+}
+.contact__form button[type="submit"]:disabled{ opacity:.6; cursor:progress; }
+
 .form__status{ margin:var(--s-2) 0 0; font-size:.875rem; min-height:1.2em; }
 .form__status.is-ok{ color:var(--ink); }
 .form__status.is-err{ color:var(--amber); }
