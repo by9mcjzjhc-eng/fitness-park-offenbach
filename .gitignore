@@ -4,3 +4,7 @@
 # Agent-Tooling, gehört nicht zur Website
 .claude/
 .agents/
+
+# Upload-Paket, wird bei Bedarf neu erzeugt
+_upload/
+*.zip
