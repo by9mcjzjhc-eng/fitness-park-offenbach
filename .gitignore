@@ -1,0 +1,6 @@
+# macOS
+.DS_Store
+
+# Agent-Tooling, gehört nicht zur Website
+.claude/
+.agents/
