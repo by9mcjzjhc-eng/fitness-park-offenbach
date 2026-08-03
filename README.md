@@ -79,9 +79,15 @@ python3 tools/grade.py
 Ausgegeben werden WebP und JPEG in mehreren Breiten. Im Markup liefert
 `<picture>` beides aus, der Browser wählt selbst.
 
-Einsatzorte: Trainingsfläche im Hero, vier Fotos am Fuß der Bento-Kacheln
-(Kraftbereich, Cardio, Longevity, Sauna), Umkleide bei „Über uns" und die
-Sonnenterrasse als vollflächiges Band vor dem Abschluss-CTA.
+Einsatzorte: die Trainingsfläche im Hero, alle sieben Fotos im durchlaufenden
+Bildstreifen zwischen Studio- und Kursabschnitt.
+
+Der Streifen (`.lauf` in `index.html`) enthält jedes Foto **zweimal** — der
+zweite Satz ist der nahtlose Anschluss und für Screenreader mit `aria-hidden`
+ausgeblendet. Die Animation verschiebt die Spur um genau eine halbe Breite plus
+einen halben Abstand; wer ein Foto hinzufügt, muss nur beide Sätze gleich
+halten. Beim Überfahren mit der Maus hält der Lauf an, bei aktiviertem
+`prefers-reduced-motion` steht er still und lässt sich von Hand schieben.
 
 ## Vor dem Livegang zu erledigen
 

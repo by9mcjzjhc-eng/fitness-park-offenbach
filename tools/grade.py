@@ -21,8 +21,7 @@ ZIEL = "assets/img/fotos"
 # Ausgabebreiten je Verwendung
 BREITEN = {
     "hero": [1800, 1200, 800],
-    "band": [2000, 1400, 900],
-    "karte": [1000, 640],
+    "streifen": [900, 600],
 }
 
 
@@ -37,17 +36,21 @@ def kuehlen(im, rot=0.975, gruen=0.995, blau=1.055):
 
 
 # ------------------------------------------------------------------- Tonwerte
-def s_kurve(im, staerke=0.16, schwarzpunkt=6):
+def s_kurve(im, staerke=0.07, schwarzpunkt=1, lift=0.10, gamma=0.90):
     """
-    Leichte S-Kurve: Tiefen runter, Lichter rauf, Mitten unberührt.
-    Gibt den flauen Aufnahmen Kontrast, ohne dass sie hart wirken.
+    Sehr zurückhaltende Kontrastkurve mit deutlicher Aufhellung.
+
+    Die Studioaufnahmen sollen freundlich und offen wirken, nicht
+    dramatisch. Deshalb wenig S-Kurve, dafür ein Gamma unter 1 (hebt die
+    Mitteltöne) und ein leichter Lift, der die Tiefen aufmacht.
     """
     lut = []
     for v in range(256):
         x = max(0.0, (v - schwarzpunkt) / (255.0 - schwarzpunkt))
-        # Smoothstep als sanfte Kontrastkurve
         s = x * x * (3 - 2 * x)
         y = x + (s - x) * staerke
+        y = y ** gamma                 # Mitteltöne anheben
+        y = lift / 255.0 + y * (1 - lift / 255.0)
         lut.append(max(0, min(255, int(y * 255))))
     return im.point(lut * 3)
 
@@ -100,8 +103,8 @@ def bearbeiten(im):
     im = kuehlen(im)
     im = s_kurve(im)
     im = farbe_lenken(im)
-    im = ImageEnhance.Contrast(im).enhance(1.06)
-    im = ImageEnhance.Brightness(im).enhance(1.02)
+    im = ImageEnhance.Contrast(im).enhance(1.02)
+    im = ImageEnhance.Brightness(im).enhance(1.09)
     return im
 
 
@@ -124,15 +127,16 @@ def speichern(im, basis, breiten):
     return ergebnis
 
 
-# Zuordnung Datei → Name auf der Website → Verwendung
+# Zuordnung Datei → Name auf der Website → Verwendungen
+# Alle Fotos laufen im Bildstreifen; die Trainingsfläche zusätzlich im Hero.
 PLAN = {
-    "Trainingsfläche 1.JPG":   ("trainingsflaeche", "hero"),
-    "trainingsfläche 1..JPG":  ("kraftbereich", "karte"),
-    "Cardio.JPG":              ("cardio", "karte"),
-    "Milon zirkel.JPG":        ("milon", "karte"),
-    "Sauna Ruheraum.png":      ("sauna", "karte"),
-    "Umkleide.JPG":            ("umkleide", "hero"),
-    "terasse f9.png":          ("terrasse", "band"),
+    "Trainingsfläche 1.JPG":   ("trainingsflaeche", ["streifen", "hero"]),
+    "trainingsfläche 1..JPG":  ("kraftbereich",     ["streifen"]),
+    "Cardio.JPG":              ("cardio",           ["streifen"]),
+    "Milon zirkel.JPG":        ("milon",            ["streifen"]),
+    "Sauna Ruheraum.png":      ("sauna",            ["streifen"]),
+    "Umkleide.JPG":            ("umkleide",         ["streifen"]),
+    "terasse f9.png":          ("terrasse",         ["streifen"]),
 }
 
 
@@ -151,13 +155,14 @@ def main():
         if name not in plan:
             continue
         gefunden.add(name)
-        basis, verwendung = plan[name]
+        basis, verwendungen = plan[name]
 
         im = Image.open(datei)
         print(f"\n{name}  ({im.width}×{im.height})  →  {basis}")
         im = bearbeiten(im)
 
-        for b, groesse, w, j in speichern(im, basis, BREITEN[verwendung]):
+        breiten = sorted({b for v in verwendungen for b in BREITEN[v]}, reverse=True)
+        for b, groesse, w, j in speichern(im, basis, breiten):
             print(f"   {groesse[0]:>5}×{groesse[1]:<5}  webp {w//1024:>4} KB   jpg {j//1024:>4} KB")
             gesamt_webp += w
             gesamt_jpg += j
