@@ -28,6 +28,15 @@ cp -R \
   "$QUELLE/_upload/"
 find "$QUELLE/_upload" -name ".DS_Store" -delete
 
+# Versionskennung an CSS und JS hängen. Ohne das liefern Browser nach einer
+# Änderung das neue HTML mit dem alten, eine Woche lang zwischengespeicherten
+# Stylesheet aus — die Seite bricht dann auseinander.
+VERSION=$(date +%Y%m%d%H%M)
+for DATEI in "$QUELLE/_upload"/*.html; do
+  sed -i '' -E "s|(styles\.css\?v=)[^\"]*|\1$VERSION|g; s|(main\.js\?v=)[^\"]*|\1$VERSION|g" "$DATEI"
+done
+echo "   Cache-Version: $VERSION"
+
 GROESSE=$(du -sh "$QUELLE/_upload" | cut -f1)
 ANZAHL=$(find "$QUELLE/_upload" -type f | wc -l | tr -d ' ')
 echo "   $ANZAHL Dateien, $GROESSE"
