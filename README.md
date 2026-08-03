@@ -19,7 +19,11 @@ datenschutz.html      Datenschutzerklärung
 assets/css/styles.css Alle Styles, Design-Tokens ganz oben in :root
 assets/js/main.js     Navigation, Longevity-Tabs, Formularvalidierung, Reveals
 assets/img/           Aus den Originallogos zugeschnitten + Favicons
+assets/img/fotos/     Bearbeitete Studiofotos, WebP und JPEG in mehreren Größen
+tools/grade.py        Bildbearbeitung: Weißabgleich, Kontrast, Farbsteuerung
+deploy.sh             Upload auf den IONOS-Webspace
 F9 Website/           Original-Logodateien (unverändert)
+f9 Fotos/             Original-Studiofotos (unverändert)
 ```
 
 ## Design
@@ -51,6 +55,33 @@ Footer, `logo-mark.png` als Wasserzeichen und Favicon. Für dunkle Flächen lieg
 
 Schriften: **Archivo** (Überschriften, passend zur Wortmarke) und
 **Instrument Sans** (Fließtext), beide über Google Fonts.
+
+## Fotos
+
+Die Originalaufnahmen in `f9 Fotos/` haben einen kräftigen Gelbstich und wenig
+Tiefe. `tools/grade.py` bringt sie auf den Stil der Website:
+
+- **Weißabgleich** — Blau leicht angehoben, Rot minimal zurück. Nimmt den
+  Gelbstich, ohne die roten Geräte auszubluten
+- **S-Kurve** — Tiefen runter, Lichter rauf. Gibt den flauen Aufnahmen Kontrast
+- **Farbsteuerung nach Farbton** — Rot bleibt voll gesättigt, Gelb und Grün
+  werden deutlich beruhigt. Sonst kämpft etwa die grüne Wand im Saunabereich
+  gegen das Markenrot
+- **Nachschärfen** nach dem Verkleinern
+
+Neue Fotos in `f9 Fotos/` legen, in der Tabelle `PLAN` am Ende des Skripts
+eintragen (Dateiname → Name auf der Website → Verwendung), dann:
+
+```bash
+python3 tools/grade.py
+```
+
+Ausgegeben werden WebP und JPEG in mehreren Breiten. Im Markup liefert
+`<picture>` beides aus, der Browser wählt selbst.
+
+Einsatzorte: Trainingsfläche im Hero, vier Fotos am Fuß der Bento-Kacheln
+(Kraftbereich, Cardio, Longevity, Sauna), Umkleide bei „Über uns" und die
+Sonnenterrasse als vollflächiges Band vor dem Abschluss-CTA.
 
 ## Vor dem Livegang zu erledigen
 

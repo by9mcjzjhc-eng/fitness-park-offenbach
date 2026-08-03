@@ -212,15 +212,46 @@ body::after{
     radial-gradient(48% 40% at 50% 38%, rgba(230,21,21,.09), transparent 70%),
     radial-gradient(38% 34% at 80% 70%, rgba(230,21,21,.06), transparent 70%);
 }
-/* Bildmarke als überdimensionales Wasserzeichen */
-.hero__watermark{
-  position:absolute; z-index:-1;
-  right:-14vw; bottom:6%;
-  width:clamp(26rem,58vw,52rem);
-  opacity:.06;
-  pointer-events:none; user-select:none;
+/* Foto der Trainingsfläche, rechts angeschnitten */
+.hero__foto{
+  position:absolute; z-index:-1; margin:0;
+  right:0; top:0; bottom:0;
+  width:min(50%, 58rem);
+  overflow:hidden;
 }
-.hero__inner{ padding-bottom:var(--s-6); }
+.hero__foto img{
+  width:100%; height:100%; object-fit:cover; object-position:center 45%;
+}
+/* Nur die linke Kante ausblenden — das Foto selbst bleibt klar */
+.hero__foto::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(95deg,
+    var(--card) 0%,
+    rgba(255,255,255,.92) 14%,
+    rgba(255,255,255,.45) 30%,
+    rgba(255,255,255,0) 52%);
+}
+.hero__mark{ display:none; }
+.hero__inner{ padding-bottom:var(--s-6); position:relative; }
+
+/* Die Kennzahlenleiste deckt das Foto ab, sonst ist sie unlesbar */
+.hero__stats{ position:relative; z-index:1; background:var(--card); }
+
+/* Auf schmalen Schirmen kein Hintergrundbild, sondern ein eigener
+   Bildstreifen zwischen Text und Kennzahlen — sonst liegt die Schrift
+   auf dem Foto und beides verliert. */
+@media (max-width:900px){
+  .hero{ padding-top:6.5rem; }
+  .hero__foto{
+    position:static; order:1;
+    width:auto; height:auto;
+    margin:var(--s-3) 0 0;
+  }
+  .hero__foto::after{ display:none; }
+  .hero__foto img{ height:15rem; object-position:center 50%; }
+  .hero__inner{ order:0; padding-bottom:0; }
+  .hero__stats{ order:2; }
+}
 
 .hero__eyebrow{
   display:inline-flex; align-items:center; gap:.65rem;
@@ -368,6 +399,24 @@ body::after{
 .card:hover{ background:var(--paper-2); }
 .card--accent{ grid-column:span 2; background:var(--red-tint); }
 .card--accent:hover{ background:var(--red-tint-2); }
+
+/* Foto am Fuß einer Karte — füllt den freien Raum,
+   statt durch eine feste Höhe neue Lücken zu erzeugen */
+.card{ display:flex; flex-direction:column; }
+.card__foto{
+  --pad:clamp(1.75rem,3vw,2.5rem);
+  margin:var(--s-3) calc(var(--pad) * -1) calc(var(--pad) * -1);
+  margin-top:auto;
+  min-height:11rem; flex:1 1 auto;
+  overflow:hidden; background:var(--paper-2);
+}
+.card__foto picture{ display:block; height:100%; }
+.card__foto img{
+  width:100%; height:100%; min-height:11rem; display:block;
+  object-fit:cover;
+  transition:transform 700ms var(--ease);
+}
+.card:hover .card__foto img{ transform:scale(1.04); }
 
 .card__num{
   position:absolute; top:1.5rem; right:1.5rem;
@@ -787,7 +836,15 @@ body::after{
 .about{ display:grid; grid-template-columns:1fr 1.15fr; gap:clamp(2rem,6vw,5rem); align-items:start; }
 .about__right p{ color:var(--ink-2); max-width:56ch; }
 .about__right strong{ color:var(--ink); font-weight:600; }
-.about__mark{ margin-top:var(--s-4); max-width:16rem; }
+.about__foto{
+  margin:var(--s-4) 0 0; max-width:26rem;
+  border-radius:var(--radius-lg); overflow:hidden;
+}
+.about__foto img{ width:100%; display:block; }
+.about__foto figcaption{
+  padding:.75rem .1rem 0;
+  font-size:.8125rem; color:var(--ink-3); line-height:1.5;
+}
 .owners{
   display:flex; flex-wrap:wrap; gap:var(--s-4);
   margin-top:var(--s-4); padding-top:var(--s-3); border-top:1px solid var(--line-2);
@@ -905,6 +962,45 @@ body::after{
 @media (max-width:900px){
   .contact{ grid-template-columns:1fr; }
   .field-row{ grid-template-columns:1fr; }
+}
+
+/* =========================================================
+   Vollflächiges Bildband — Sonnenterrasse
+   ========================================================= */
+.band{
+  position:relative; isolation:isolate;
+  min-height:clamp(24rem,54vh,34rem);
+  display:flex; align-items:flex-end;
+  padding-block:clamp(3rem,7vw,5rem);
+  overflow:hidden;
+}
+.band__bild{
+  position:absolute; inset:0; z-index:-2;
+  width:100%; height:100%; object-fit:cover; object-position:center 58%;
+}
+/* Verlauf von unten, damit die Schrift auf jedem Bildausschnitt trägt */
+.band::after{
+  content:''; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(0deg,
+    rgba(10,10,11,.86) 0%,
+    rgba(10,10,11,.62) 34%,
+    rgba(10,10,11,.20) 62%,
+    rgba(10,10,11,.05) 100%);
+}
+.band__inhalt{ color:#fff; }
+.band__label{
+  font-size:.75rem; letter-spacing:.24em; text-transform:uppercase;
+  color:#fff; opacity:.75; margin:0 0 var(--s-2); font-weight:600;
+}
+.band__titel{
+  font-size:clamp(2rem,5vw,3.75rem);
+  text-transform:uppercase; letter-spacing:-.04em;
+  margin:0 0 var(--s-3); color:#fff;
+}
+.band__text{
+  max-width:46ch; margin:0;
+  color:rgba(255,255,255,.88);
+  font-size:clamp(1rem,1.4vw,1.125rem);
 }
 
 /* =========================================================
