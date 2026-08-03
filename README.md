@@ -146,6 +146,23 @@ Die Zeitbänder des Kalenders (09–13 Uhr und 17–21 Uhr) sind in `main.js` al
 `BANDS` definiert. Fällt künftig ein Kurs außerhalb dieser Zeiten an, muss das
 Band dort erweitert werden.
 
+### Bewertungen pflegen
+
+Die Zitate stehen fest im Markup (`.stimmen__spur` in `index.html`), jedes
+**zweimal** — wie beim Bildstreifen ist der zweite Satz der nahtlose Anschluss
+und mit `aria-hidden` versehen. Note und Anzahl stehen im Block `.note`
+darüber und müssen von Hand aktualisiert werden.
+
+Bewusst **kein** Widget von Elfsight, Trustindex o. ä.: Die laden fremdes
+JavaScript und Google-Ressourcen nach, wodurch die Seite ein Cookie-Banner
+bräuchte. Der Verzicht auf automatische Aktualisierung ist der Preis dafür,
+dass die Seite ohne Einwilligungsdialog auskommt.
+
+Ebenfalls bewusst **keine** `AggregateRating`-Auszeichnung im JSON-LD: Google
+untersagt diese Auszeichnung für selbst eingebundene Bewertungen über das
+eigene Unternehmen. Die Sterne in der Suche kommen aus dem
+Google-Unternehmensprofil, nicht von der Website.
+
 ### Preise pflegen
 
 Die Beiträge stehen direkt im Markup von `index.html` im Block `.pricing` —

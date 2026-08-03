@@ -488,6 +488,84 @@ body::after{
 }
 
 /* =========================================================
+   Bewertungen
+   ========================================================= */
+.stimmen{ overflow:hidden; }
+.sec-head--breit{ max-width:none; }
+
+/* Notenblock */
+.note{
+  display:flex; align-items:center; gap:clamp(1rem,2.5vw,1.75rem);
+  flex-wrap:wrap; margin-bottom:var(--s-3);
+}
+.note__zahl{ display:flex; align-items:baseline; gap:.5rem; }
+.note__wert{
+  font-family:var(--display); font-weight:900;
+  font-size:clamp(3rem,7vw,5rem); line-height:.85;
+  letter-spacing:-.05em; color:var(--red);
+  font-variant-numeric:tabular-nums;
+}
+.note__max{ font-size:.9375rem; color:var(--ink-3); }
+.note__sterne{ display:flex; gap:.2rem; color:var(--red); }
+.note__sterne svg{ width:22px; height:22px; }
+.note__quelle{ margin:.5rem 0 0; font-size:.9375rem; color:var(--ink-2); }
+.note__quelle strong{ color:var(--ink); font-weight:600; }
+.note__quelle a{ color:var(--red-txt); }
+
+/* Laufband der Stimmen — gegenläufig zum Bildstreifen */
+.stimmen__lauf{
+  position:relative;
+  margin-top:clamp(2rem,4vw,3rem);
+  overflow:hidden;
+}
+.stimmen__spur{
+  display:flex; width:max-content;
+  gap:var(--s-2);
+  animation:laufen-zurueck 78s linear infinite;
+}
+.stimmen__lauf:hover .stimmen__spur{ animation-play-state:paused; }
+
+@keyframes laufen-zurueck{
+  from{ transform:translateX(calc(-50% - .5rem)); }
+  to  { transform:translateX(0); }
+}
+
+.stimme{
+  margin:0; flex:none;
+  width:clamp(17rem,26vw,23rem);
+  display:flex; flex-direction:column;
+  padding:clamp(1.25rem,2vw,1.75rem);
+  background:var(--card);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius-lg);
+}
+.stimme__sterne{ display:flex; gap:.15rem; color:var(--red); margin-bottom:.9rem; }
+.stimme__sterne svg{ width:15px; height:15px; }
+.stimme__text{
+  margin:0 0 var(--s-3); flex:1;
+  font-size:.9375rem; line-height:1.6; color:var(--ink-2);
+}
+.stimme__text::before{ content:'„'; }
+.stimme__text::after{ content:'“'; }
+.stimme__name{
+  font-size:.8125rem; font-weight:600; color:var(--ink);
+  padding-top:.75rem; border-top:1px solid var(--line-2);
+}
+
+/* Weiche Kanten */
+.stimmen__lauf::before,.stimmen__lauf::after{
+  content:''; position:absolute; top:0; bottom:0; width:clamp(2rem,7vw,6rem);
+  z-index:1; pointer-events:none;
+}
+.stimmen__lauf::before{ left:0;  background:linear-gradient(90deg, var(--paper-2), transparent); }
+.stimmen__lauf::after { right:0; background:linear-gradient(270deg, var(--paper-2), transparent); }
+
+@media (prefers-reduced-motion:reduce){
+  .stimmen__spur{ animation:none; overflow-x:auto; width:auto; }
+  .stimmen__lauf{ overflow:visible; }
+}
+
+/* =========================================================
    Kursplan — Filterleiste
    ========================================================= */
 .kursplan__bar{
