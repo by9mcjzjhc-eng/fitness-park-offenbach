@@ -17,9 +17,10 @@ declare(strict_types=1);
    -------------------------------------------------------------------------- */
 $empfaenger = 'info@fitness-park-offenbach.com';
 
-// Absender muss zur eigenen Domain gehören, sonst landet die Mail im Spam.
-// Bei IONOS: eine echte, im Panel angelegte Adresse eintragen.
-$absender = 'noreply@fitness-park-offenbach.com';
+// Absender muss eine real existierende Adresse der eigenen Domain sein —
+// IONOS weist den Versand sonst ab. Wir nehmen dieselbe Adresse wie der
+// Empfänger, dann genügt ein einziges Postfach.
+$absender = 'info@fitness-park-offenbach.com';
 
 $betreffPrefix = 'Probetraining-Anfrage';
 
