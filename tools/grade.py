@@ -98,8 +98,17 @@ def farbe_lenken(im):
 
 
 # ------------------------------------------------------------------ Gesamtlauf
-def bearbeiten(im):
+def zuschneiden(im, box):
+    """Relativer Ausschnitt (links, oben, rechts, unten) je 0…1."""
+    b, h = im.size
+    return im.crop((round(box[0] * b), round(box[1] * h),
+                    round(box[2] * b), round(box[3] * h)))
+
+
+def bearbeiten(im, ausschnitt=None):
     im = im.convert("RGB")
+    if ausschnitt:
+        im = zuschneiden(im, ausschnitt)
     im = kuehlen(im)
     im = s_kurve(im)
     im = farbe_lenken(im)
@@ -129,14 +138,17 @@ def speichern(im, basis, breiten):
 
 # Zuordnung Datei → Name auf der Website → Verwendungen
 # Alle Fotos laufen im Bildstreifen; die Trainingsfläche zusätzlich im Hero.
+# Dritter Eintrag: relativer Ausschnitt für hochkante Aufnahmen.
+# Der Kursraum ist im Hochformat fotografiert — der Ausschnitt legt sich
+# auf Spiegelwand und Fensterfront, der leere Boden darunter fällt weg.
 PLAN = {
-    "Trainingsfläche 1.JPG":   ("trainingsflaeche", ["streifen", "hero"]),
-    "trainingsfläche 1..JPG":  ("kraftbereich",     ["streifen"]),
-    "Cardio.JPG":              ("cardio",           ["streifen"]),
-    "Milon zirkel.JPG":        ("milon",            ["streifen"]),
-    "Sauna Ruheraum.png":      ("sauna",            ["streifen"]),
-    "Umkleide.JPG":            ("umkleide",         ["streifen"]),
-    "terasse f9.png":          ("terrasse",         ["streifen"]),
+    "Kursraum.jpg":            ("kursraum",     ["streifen"], (0.0, 0.22, 1.0, 0.72)),
+    "trainingsfläche 1..JPG":  ("kraftbereich", ["streifen"]),
+    "Cardio.JPG":              ("cardio",       ["streifen"]),
+    "Milon zirkel.JPG":        ("milon",        ["streifen"]),
+    "Sauna Ruheraum.png":      ("sauna",        ["streifen"]),
+    "Umkleide.JPG":            ("umkleide",     ["streifen"]),
+    "terasse f9.png":          ("terrasse",     ["streifen"]),
 }
 
 
@@ -155,11 +167,13 @@ def main():
         if name not in plan:
             continue
         gefunden.add(name)
-        basis, verwendungen = plan[name]
+        eintrag = plan[name]
+        basis, verwendungen = eintrag[0], eintrag[1]
+        ausschnitt = eintrag[2] if len(eintrag) > 2 else None
 
         im = Image.open(datei)
         print(f"\n{name}  ({im.width}×{im.height})  →  {basis}")
-        im = bearbeiten(im)
+        im = bearbeiten(im, ausschnitt)
 
         breiten = sorted({b for v in verwendungen for b in BREITEN[v]}, reverse=True)
         for b, groesse, w, j in speichern(im, basis, breiten):
