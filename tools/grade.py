@@ -144,7 +144,7 @@ def speichern(im, basis, breiten):
 PLAN = {
     "Kursraum.jpg":            ("kursraum",     ["streifen"], (0.0, 0.22, 1.0, 0.72)),
     "trainingsfläche 1..JPG":  ("kraftbereich", ["streifen"]),
-    "Cardio.JPG":              ("cardio",       ["streifen"]),
+    "Cardio-neu.png":          ("cardio",       ["streifen"]),
     "Milon zirkel.JPG":        ("milon",        ["streifen"]),
     "Sauna Ruheraum.png":      ("sauna",        ["streifen"]),
     "Umkleide.JPG":            ("umkleide",     ["streifen"]),
