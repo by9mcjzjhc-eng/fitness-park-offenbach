@@ -33,7 +33,14 @@ find "$QUELLE/_upload" -name ".DS_Store" -delete
 # Stylesheet aus — die Seite bricht dann auseinander.
 VERSION=$(date +%Y%m%d%H%M)
 for DATEI in "$QUELLE/_upload"/*.html; do
+  # Stylesheet und Skript
   sed -i '' -E "s|(styles\.css\?v=)[^\"]*|\1$VERSION|g; s|(main\.js\?v=)[^\"]*|\1$VERSION|g" "$DATEI"
+  # Bilder: liegen ein Jahr im Zwischenspeicher. Wird ein Foto unter
+  # gleichem Namen ausgetauscht, bekämen wiederkehrende Besucher sonst
+  # weiter das alte zu sehen. Das Fragezeichen ist aus der Zeichenklasse
+  # ausgenommen, damit ein zweiter Lauf nicht doppelt anhängt.
+  sed -i '' -E "s#(assets/img/[^\"' ?]+\.(png|jpg|jpeg|webp))\?v=[0-9]*#\1#g" "$DATEI"
+  sed -i '' -E "s#(assets/img/[^\"' ?]+\.(png|jpg|jpeg|webp))#\1?v=$VERSION#g" "$DATEI"
 done
 echo "   Cache-Version: $VERSION"
 
